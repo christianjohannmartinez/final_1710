@@ -6,8 +6,8 @@ sig Label {}
 one sig Homeless, NotHomeless, DrugUser, Wealthy extends Label {}
 
 sig Person {
-  labels: set Label,
-  possesses: one Sandwich
+  var labels: set Label,
+  var possesses: lone Sandwich
 }
 
 
@@ -25,23 +25,27 @@ pred JobAvenue[p: Person] {
 pred StreetAvenue[p: Person] {
   all passerby: Person | {
     // If you are not homeless, people assume you don't need a sandwich
-    (NotHomeless in p.labels) => p.possesses = none
-    
+    (NotHomeless in p.labels) => no p.possesses
+
     // If you are homeless and ask, you are assigned "DrugUser" and denied
     (Homeless in p.labels) => {
       DrugUser in p.labels'
-      p.possesses = none
+      no p.possesses
     }
   }
 }
 
 pred GovernmentAvenue[p: Person] {
   // If wealthy, the web of nonsense disappears
-  (Wealthy in p.labels) => some s: Sandwich | p.possesses = s
-  
+  (Wealthy in p.labels) => { some s: Sandwich | p.possesses = s }
+
   // If not wealthy, they enter a state with no valid transitions to "possesses"
   (Wealthy not in p.labels) => {
     // Government bureaucracy nonsense here
-    p.possesses = none
+    no p.possesses
   }
 }
+
+run {
+  some p: Person | JobAvenue[p] or StreetAvenue[p] or GovernmentAvenue[p]
+} for exactly 1 Person, exactly 1 Sandwich
