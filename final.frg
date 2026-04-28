@@ -3,11 +3,16 @@
 sig Sandwich {}
 
 sig Label {}
-one sig Homeless, NotHomeless, DrugUser, Wealthy extends Label {}
+one sig Homeless, NotHomeless, DrugUser, Wealthy, Bureaucrat extends Label {}
 
 sig Person {
   var labels: set Label,
   var possesses: lone Sandwich
+}
+
+pred DoNothing[p: Person] {
+    p.labels' = p.labels
+    p.possesses' = p.possesses
 }
 
 
@@ -46,6 +51,27 @@ pred GovernmentAvenue[p: Person] {
   }
 }
 
-run {
-  some p: Person | JobAvenue[p] or StreetAvenue[p] or GovernmentAvenue[p]
-} for exactly 1 Person, exactly 1 Sandwich
+pred BureaucratRemoval[b: Person] {
+  
+  Bureaucrat in b.labels
+
+  all p: Person | p != b implies {
+    (Wealthy in p.labels) => {
+      b.labels' = (b.labels - Bureaucrat) + Homeless
+      p.labels' = p.labels
+    } 
+
+    else {
+      some nextLabels: set Label | {
+        Wealthy not in nextLabels
+        // Homeless in p.labels => 
+        p.labels' = nextLabels
+      }
+      b.labels' = b.labels
+    }
+  }
+}
+
+// run {
+//   some p: Person | JobAvenue[p] or StreetAvenue[p] or GovernmentAvenue[p]
+// } for exactly 1 Person, exactly 1 Sandwich
