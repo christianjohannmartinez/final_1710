@@ -28,9 +28,6 @@ pred DoNothing[p: Person] {
 
 // --------- EMPLOYMENT AVENUE ---------
 // WorkHistory -> Employed -> sandwich (two steps)
-// having Needy bars you
-// having already asked for Aid bars you
-// adds JobApplicant, which permanently gates AidAvenue
 
 pred JobAvenue[p: Person] {
   // gates
@@ -46,9 +43,6 @@ pred JobAvenue[p: Person] {
 
 // -------- AID ---------
 // Needy -> AidApproved -> sandwich (two steps)
-// having WorkHistory bars you ("you've worked before, figure it out")
-// having already touched Employment bars you (JobApplicant in labels)
-// adds AidApplicant, which permanently gates JobAvenue
 
 pred AidAvenue[p: Person] {
   // gates
@@ -199,6 +193,16 @@ run {
 run {
   some p: Person | {
     initHomeless[p]
+    always { all q: Person | step[q] }
+    eventually some p.possesses
+  }
+} for exactly 1 Person, exactly 1 Sandwich
+
+// Should be sat: Wealthy label -> bypasses all systems instantly
+run {
+  some p: Person | {
+    p.labels = Wealthy
+    no p.possesses
     always { all q: Person | step[q] }
     eventually some p.possesses
   }
