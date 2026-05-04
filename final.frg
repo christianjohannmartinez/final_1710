@@ -21,44 +21,59 @@ sig Person {
   var possesses: lone Sandwich
 }
 
+// --------- GLOBAL INTERCONNECTION ---------
+
+pred GlobalRules[p: Person] {
+  // labels persist
+  p.labels in p.labels'
+
+  // cross-system penalties
+  (DrugUser in p.labels) => Employed not in p.labels'
+  (AidApplicant in p.labels) => Employed not in p.labels'
+  (JobApplicant in p.labels) => AidApproved not in p.labels'
+}
+
+// drift over time (feedback loop)
+pred Drift[p: Person] {
+  p.possesses' = p.possesses
+
+  // no job → becomes needy
+  (Employed not in p.labels) => p.labels' = p.labels + Needy
+
+  // homelessness escalates
+  (Homeless in p.labels) => p.labels' = p.labels + Needy + DrugUser
+}
+
+// --------- BASE ---------
+
 pred DoNothing[p: Person] {
-    p.labels' = p.labels
-    p.possesses' = p.possesses
+  p.labels' = p.labels
+  p.possesses' = p.possesses
 }
 
 // --------- EMPLOYMENT AVENUE ---------
-// WorkHistory -> Employed -> sandwich (two steps)
 
 pred JobAvenue[p: Person] {
-  // gates
   AidApplicant not in p.labels
 
-  // effect: add JobApplicant; if WorkHistory present, add Employed
   p.labels' = p.labels + JobApplicant + (WorkHistory in p.labels => Employed else none)
 
-  // payoff: Employed in CURRENT state earns a sandwich next state
   (Employed in p.labels)     => some p.possesses'
   (Employed not in p.labels) => p.possesses' = p.possesses
 }
 
 // -------- AID ---------
-// Needy -> AidApproved -> sandwich (two steps)
 
 pred AidAvenue[p: Person] {
-  // gates
   JobApplicant not in p.labels
 
-  // effect: add AidApplicant; if Needy present, add AidApproved
   p.labels' = p.labels + AidApplicant + (Needy in p.labels => AidApproved else none)
 
-  // payoff: AidApproved in CURRENT state earns a sandwich next state
   (AidApproved in p.labels)     => some p.possesses'
   (AidApproved not in p.labels) => p.possesses' = p.possesses
 }
 
 // --------- STREET AVENUE ---------
-// NotHomeless -> assumed fine, no sandwich
-// Homeless -> labeled DrugUser, still no sandwich
 
 pred StreetAvenue[p: Person] {
   (NotHomeless in p.labels) => {
@@ -67,7 +82,7 @@ pred StreetAvenue[p: Person] {
   }
   (Homeless in p.labels) => {
     p.possesses' = p.possesses
-    p.labels'    = p.labels + DrugUser
+    p.labels'    = p.labels + DrugUser + Needy
   }
   (Homeless not in p.labels and NotHomeless not in p.labels) => {
     p.possesses' = p.possesses
@@ -75,8 +90,7 @@ pred StreetAvenue[p: Person] {
   }
 }
 
-// --------- WEALTHY BYPASS ---------
-// No questions asked
+// --------- WEALTHY ---------
 
 pred WealthyBypass[p: Person] {
   Wealthy in p.labels
@@ -88,7 +102,9 @@ pred WealthyBypass[p: Person] {
 
 pred BureaucratStep[b: Person] {
   Bureaucrat in b.labels
-  b.labels'    = b.labels
+
+  // can undo progress
+  b.labels' = b.labels - AidApproved - Employed
   b.possesses' = b.possesses
 }
 
@@ -99,44 +115,38 @@ pred step[p: Person] {
   (Bureaucrat not in p.labels) => {
     (Wealthy in p.labels) => WealthyBypass[p]
     (Wealthy not in p.labels) => {
-      JobAvenue[p] or AidAvenue[p] or StreetAvenue[p] or DoNothing[p]
-    }
+      (JobAvenue[p] or AidAvenue[p] or StreetAvenue[p] or Drift[p] or DoNothing[p])
+      and GlobalRules[p]    }
   }
 }
 
-// --------- INIT PREDICATES ---------
+// --------- INIT ---------
 
-// has WorkHistory only
 pred initEmploymentCandidate[p: Person] {
   no p.possesses
   p.labels = WorkHistory
 }
 
-// WorkHistory, but also Aid
 pred initEmploymentCandidatePoisoned[p: Person] {
   no p.possesses
-  p.labels = WorkHistory + AidApplicant //locks employment
+  p.labels = WorkHistory + AidApplicant
 }
 
-// has Needy only
 pred initAidCandidate[p: Person] {
   no p.possesses
   p.labels = Needy
 }
 
-// has Needy, but also JobApplicant
 pred initAidCandidatePoisoned[p: Person] {
   no p.possesses
-  p.labels = Needy + JobApplicant //locks aid
+  p.labels = Needy + JobApplicant
 }
 
-// employment loop catch, nothing to enter any system
 pred initEmploymentCatch22[p: Person] {
   no p.possesses
   no p.labels
 }
 
-// Homeless trap
 pred initHomeless[p: Person] {
   no p.possesses
   p.labels = Homeless
@@ -144,7 +154,6 @@ pred initHomeless[p: Person] {
 
 // --------- RUNS ---------
 
-// Should be sat: WorkHistory alone -> Employed (step 1) -> sandwich (step 2)
 run {
   some p: Person | {
     initEmploymentCandidate[p]
@@ -153,7 +162,6 @@ run {
   }
 } for exactly 1 Person, exactly 1 Sandwich
 
-// Should be unsat: WorkHistory present but Aid first -> blocks employment
 run {
   some p: Person | {
     initEmploymentCandidatePoisoned[p]
@@ -162,7 +170,6 @@ run {
   }
 } for exactly 1 Person, exactly 1 Sandwich
 
-// Should be sat: Needy alone -> AidApproved (step 1) -> sandwich (step 2)
 run {
   some p: Person | {
     initAidCandidate[p]
@@ -171,7 +178,6 @@ run {
   }
 } for exactly 1 Person, exactly 1 Sandwich
 
-// Should be unsat: Needy but also Employment requested -> blocks aid
 run {
   some p: Person | {
     initAidCandidatePoisoned[p]
@@ -180,7 +186,6 @@ run {
   }
 } for exactly 1 Person, exactly 1 Sandwich
 
-// Should be unsat: employment loop
 run {
   some p: Person | {
     initEmploymentCatch22[p]
@@ -189,7 +194,6 @@ run {
   }
 } for exactly 1 Person, exactly 1 Sandwich
 
-// Should be unsat: Homeless trap
 run {
   some p: Person | {
     initHomeless[p]
@@ -198,7 +202,6 @@ run {
   }
 } for exactly 1 Person, exactly 1 Sandwich
 
-// Should be sat: Wealthy label -> bypasses all systems instantly
 run {
   some p: Person | {
     p.labels = Wealthy
