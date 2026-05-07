@@ -1004,10 +1004,12 @@ run {
   some p: Person | bornIntoTrap[p]
 } for exactly 1 Person, 1 Sandwich, 6 Int
 
--- ROUTE 2: Poor person. The deep trap closes — all 6 catch-22 systems lock simultaneously.
+-- ROUTE 2: Poor person. Watch crimes accumulate over time (the ratchet).
+-- Records grow, hygiene degrades, debt climbs — the trap tightens tick by tick.
 run {
   trace
-  eventually (some p: Person | deeplyTrapped[p])
+  some p: Person | bornIntoTrap[p]
+  eventually (some p: Person | some p.records)
 } for exactly 1 Person, 1 Sandwich, 6 Int
 
 -- ROUTE 3: Poor person. The media misreporting engine at full power.
