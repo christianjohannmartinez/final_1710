@@ -43,6 +43,7 @@ sig Person {
   var hunger:      one HungerLevel,
   var trust:       one SocialTrust,
   var possesses:   lone Sandwich,
+  var decision:    one Decision,    -- what avenue they tried this tick
   -- Resource fields for the 14 catch-22 systems
   var creditScore: one CreditTier,
   var debtLevel:   one DebtLevel,
@@ -210,6 +211,19 @@ one sig High, Medium, Low, None extends SympathyLevel {}
 
 abstract sig PolicyState {}
 one sig Active, Suspended extends PolicyState {}
+
+-- =============================================================================
+-- DECISION: What avenue the person tries each tick
+-- =============================================================================
+-- This is the "choice" the person makes. The model shows that for poor people,
+-- it doesn't matter which decision they make — all three avenues are closed.
+-- For wealthy people, any decision succeeds.
+
+abstract sig Decision {}
+one sig TryJob     extends Decision {} -- try to get employed
+one sig TryAid     extends Decision {} -- apply for government aid
+one sig TryStreet  extends Decision {} -- ask a stranger
+one sig GaveUp     extends Decision {} -- no avenue available, gave up
 
 -- =============================================================================
 -- SOCIETY: The machine
@@ -794,6 +808,19 @@ pred trustDynamics {
 }
 
 -- =============================================================================
+-- DECISION TRANSITIONS: Record what the person tried this tick
+-- =============================================================================
+
+pred decisionTransitions {
+  all p: Person | {
+    jobAvenue[p] => p.decision' = TryJob
+    else (aidAvenue[p] => p.decision' = TryAid
+    else (streetAvenue[p] => p.decision' = TryStreet
+    else p.decision' = GaveUp))
+  }
+}
+
+-- =============================================================================
 -- SANDWICH ACQUISITION
 -- =============================================================================
 
@@ -837,6 +864,7 @@ pred init {
     no p.possesses
     p.loc          = Outside
     p.employment   = Unemployed
+    p.decision     = GaveUp
     p.creditScore  = NoCredit
     p.debtLevel    = NoDebt
     p.resumeGap    = NoGap
@@ -891,6 +919,7 @@ pred step {
   resourcesDegradation
   hungerEscalates
   trustDynamics
+  decisionTransitions
   all p: Person | {
     locationStep[p]
     acquiresSandwich[p] or sandwichFrameStutter[p]
@@ -941,6 +970,7 @@ pred wealthyInit[p: Person] {
   no p.possesses
   p.loc          = WorkPlace        -- already in the right places
   p.employment   = Employed         -- born into employment pipeline
+  p.decision     = TryJob           -- wealthy person always has the job avenue open
 
   -- All resource fields start at their BEST state
   p.creditScore  = GoodCredit
@@ -966,6 +996,33 @@ pred wealthyIsNeverTrapped[p: Person] {
 }
 
 -- =============================================================================
+-- TERMINAL STATES: What every poor and wealthy person ends up as
+-- =============================================================================
+-- These are the "same end state" predicates.
+-- Every poor person, regardless of which avenues they tried, ends here.
+-- Every wealthy person ends at wealthyElderState.
+-- This is the formal claim: starting point determines ending point, not decisions.
+
+pred poorElderState[p: Person] {
+  p.stage       = Elder
+  p.status      = Homeless
+  p.employment  = Unemployed or p.employment = Blacklisted
+  p.hunger      = Desperate
+  p.trust       = Flagged
+  no p.possesses
+  some p.records  -- has a criminal record from survival
+  p.savings     = Zero or p.savings = InDebt
+  p.creditScore = BadCredit or p.creditScore = NoCredit
+}
+
+pred wealthyElderState[p: Person] {
+  p.stage      = Elder
+  p.status     = Housed
+  p.trust      = Trusted
+  some p.possesses  -- has the sandwich
+}
+
+-- =============================================================================
 -- REACH GOAL: Named counterfactuals
 -- =============================================================================
 
@@ -984,33 +1041,45 @@ pred dropDressCode          { Society.dresscodeEnforced       = Suspended }
 -- =============================================================================
 -- RUN BLOCKS
 -- =============================================================================
--- TWO ROUTES. Switch between them using the dropdown in Sterling's Explorer.
+-- TWO ROUTES. Switch using the Explorer dropdown in Sterling.
+-- Use the TIME TAB arrows (right panel) to step tick by tick.
 --
---   ROUTE 1 (POOR):    Born into the trap. Every door closes. No sandwich.
---                      Use the Time tab arrows to step tick by tick.
---                      Watch: records accumulate, hygiene degrades, debt grows.
---                      The possesses field is always empty. That is the proof.
+-- ROUTE 1 — POOR PERSON
+--   State 0 (Infant):  Born clean. No records. Looks hopeful.
+--   State 1 (Youth):   First survival crime appears. Gap starts growing.
+--   State 2 (Adult):   Fully trapped. decision = GaveUp every tick.
+--   State 3 (Elder):   Homeless, Desperate, Flagged, no sandwich. Always.
+--   The key: decision shows GaveUp — not because they stopped trying,
+--   but because every avenue is formally closed by the system.
 --
---   ROUTE 2 (WEALTHY): Born with everything. Same society. Same laws.
---                      Use the Time tab arrows to step tick by tick.
---                      Watch: possesses shows Sandwich immediately.
---                      Compare Person box to Route 1 — same system, opposite outcome.
+-- ROUTE 2 — WEALTHY PERSON
+--   State 0 (Infant):  Born with everything.
+--   State 1+:          decision = TryJob every tick. Sandwich appears.
+--   State 3 (Elder):   Housed, Trusted, sandwich. Always.
+--   Same Society. Same laws. Different start. Different end. That is the proof.
 -- =============================================================================
 
 -- ROUTE 1: POOR
--- The person starts homeless with no ID, no bank, no credit, no connectivity.
--- All 20 laws are active. Step forward and watch the trap close.
+-- Starts hopeful (Infant, no records, clean).
+-- Ends at poorElderState: Homeless, Desperate, Flagged, criminal record, no sandwich.
+-- The decision field shows GaveUp by adulthood — not from lack of effort,
+-- but because all three avenues are formally closed simultaneously.
 run {
   trace
-  some p: Person | bornIntoTrap[p]
+  some p: Person | {
+    bornIntoTrap[p]
+    eventually poorElderState[p]
+  }
 } for exactly 1 Person, 1 Sandwich, 6 Int
 
 -- ROUTE 2: WEALTHY
--- The person starts housed, employed, insured, connected, trusted.
--- Same 20 laws. Step forward — sandwich appears immediately.
+-- Starts with everything.
+-- Ends at wealthyElderState: Housed, Trusted, sandwich.
+-- Same Society box. Same laws. Starting point determines ending point.
 run {
   some p: Person | {
     wealthyInit[p]
     always step
+    eventually wealthyElderState[p]
   }
 } for exactly 1 Person, 1 Sandwich, 6 Int
