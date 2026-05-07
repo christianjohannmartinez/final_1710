@@ -1,0 +1,334 @@
+# =============================================================================
+# layout.cnd — THE SANDWICH TRAP
+# Cope and Drag layout for Sterling
+# =============================================================================
+#
+# HOW TO USE THIS LAYOUT:
+#   1. In Sterling, click "Layout" tab → "Load Layout" → paste this file
+#   2. Use the INSTANCE ARROWS (< >) to switch between the 6 runs:
+#        Instance 1 = Route 1: Poor person, born into trap
+#        Instance 2 = Route 2: Poor person, deep trap closes
+#        Instance 3 = Route 3: Poor person, media misreporting full blast
+#        Instance 4 = Route 4: Wealthy person, gets sandwich
+#        Instance 5 = Route 6: Side by side (poor p1, wealthy p2)
+#   3. Use the TEMPORAL ARROWS to step through time tick by tick
+#   4. If Route 6 is loaded, use the PERSON PROJECTION DROPDOWN
+#      to switch between viewing p1 (poor) and p2 (wealthy)
+#
+# WHAT YOU SEE:
+#   - Person box: ALL their status as readable text labels (no clutter)
+#   - Society box: sympathy + all 20 active laws as text + media tags
+#   - Location nodes: where the person currently is (dashed line)
+#   - Record edges: ORANGE = survival crime, RED = violent crime
+#     (these accumulate as you step forward — watch them grow)
+#   - Green edge: person HAS the sandwich (the goal — watch for it)
+#
+# HOW TO EXPLAIN EACH ROUTE:
+#   Route 1: Start at tick 0 — Person has NoAddress, Homeless, NoCredit etc.
+#            Step forward — records appear (orange), sympathy drops, laws tighten
+#            Keep stepping — all three avenues remain closed the whole trace
+#
+#   Route 4: Start at tick 0 — Person has VerifiedAddress, Housed, GoodCredit
+#            Step forward — green "possesses" edge appears immediately
+#            Compare the Person box side by side with Route 1
+#
+#   Route 6: Load this instance, then use the Person dropdown:
+#            Select p1 (poor)  → same story as Route 1
+#            Select p2 (wealthy) → same story as Route 4
+#            SAME SOCIETY. SAME LAWS. SAME TICK. Different outcome.
+#
+# =============================================================================
+
+constraints:
+
+  # Society sits above Person — the institution has power over the individual
+  - orientation:
+      selector: "Society -> Person"
+      directions: [above]
+
+  # Locations form a row below Person — the landscape of options
+  - align:
+      selector: "Park + WorkPlace + GovernmentOffice + StreetCorner + Outside + Shelter"
+      direction: horizontal
+
+  - orientation:
+      selector: "Person -> Park"
+      directions: [below]
+
+  # Crime nodes sit below the person — the accumulating burden
+  - orientation:
+      selector: "Person -> Trespassing"
+      directions: [below]
+
+  - orientation:
+      selector: "Person -> Loitering"
+      directions: [below]
+
+directives:
+
+  # ── PERSON ─────────────────────────────────────────────────────────────────
+  # One amber box. Every field shown as text inside it.
+  # When you step through time, these labels update — that's the whole story.
+
+  - atomColor:
+      selector: Person
+      value: "#E8A838"
+
+  - attribute: {field: stage,        selector: Person}
+  - attribute: {field: status,       selector: Person}
+  - attribute: {field: employment,   selector: Person}
+  - attribute: {field: hunger,       selector: Person}
+  - attribute: {field: trust,        selector: Person}
+  - attribute: {field: label,        selector: Person}
+  - attribute: {field: hygiene,      selector: Person}
+  - attribute: {field: wardrobe,     selector: Person}
+  - attribute: {field: connectivity, selector: Person}
+  - attribute: {field: savings,      selector: Person}
+  - attribute: {field: resumeGap,    selector: Person}
+  - attribute: {field: creditScore,  selector: Person}
+  - attribute: {field: idStatus,     selector: Person}
+  - attribute: {field: bankAccount,  selector: Person}
+  - attribute: {field: transport,    selector: Person}
+  - attribute: {field: insurance,    selector: Person}
+  - attribute: {field: legalStatus,  selector: Person}
+  - attribute: {field: healthStatus, selector: Person}
+  - attribute: {field: childcare,    selector: Person}
+  - attribute: {field: recordClean,  selector: Person}
+  - attribute: {field: debtLevel,    selector: Person}
+
+  # ── SOCIETY ─────────────────────────────────────────────────────────────────
+  # One dark box. Sympathy and all 20 laws as text.
+  # Media stories shown as a tag so you see "media: CrimeWave, CriminalElement..."
+
+  - atomColor:
+      selector: Society
+      value: "#1e293b"
+
+  - attribute: {field: publicSympathy,         selector: Society}
+  - attribute: {field: trespassingLaw,          selector: Society}
+  - attribute: {field: loiteringLaw,            selector: Society}
+  - attribute: {field: panhandlingBan,          selector: Society}
+  - attribute: {field: shelterIDRequirement,    selector: Society}
+  - attribute: {field: employerCriminalCheck,   selector: Society}
+  - attribute: {field: aidAddressRequirement,   selector: Society}
+  - attribute: {field: creditCheckForLoans,     selector: Society}
+  - attribute: {field: algorithmHiring,         selector: Society}
+  - attribute: {field: gymMembershipRequired,   selector: Society}
+  - attribute: {field: mandatoryLegalFees,      selector: Society}
+  - attribute: {field: employerInsuranceOnly,   selector: Society}
+  - attribute: {field: onlineServicesOnly,      selector: Society}
+  - attribute: {field: housingFarFromWork,      selector: Society}
+  - attribute: {field: expungementFeeRequired,  selector: Society}
+  - attribute: {field: birthCertRequired,       selector: Society}
+  - attribute: {field: securityDepositRequired, selector: Society}
+  - attribute: {field: childcareRequired,       selector: Society}
+  - attribute: {field: bankMinimumBalance,      selector: Society}
+  - attribute: {field: dresscodeEnforced,       selector: Society}
+  - attribute: {field: utilityBillForLease,     selector: Society}
+
+  - tag:
+      toTag: Society
+      name: "media"
+      value: mediaFrames
+
+  # ── LOCATIONS ───────────────────────────────────────────────────────────────
+  - atomColor: {selector: Park,             value: "#15803d"}
+  - atomColor: {selector: WorkPlace,        value: "#1d4ed8"}
+  - atomColor: {selector: GovernmentOffice, value: "#7e22ce"}
+  - atomColor: {selector: StreetCorner,     value: "#b45309"}
+  - atomColor: {selector: Shelter,          value: "#0369a1"}
+  - atomColor: {selector: Outside,          value: "#475569"}
+  - atomColor: {selector: Library,          value: "#065f46"}
+  - atomColor: {selector: Hospital,         value: "#9f1239"}
+  - atomColor: {selector: CourtHouse,       value: "#7f1d1d"}
+  - atomColor: {selector: FoodBank,         value: "#14532d"}
+  - atomColor: {selector: LaundroMat,       value: "#4c1d95"}
+  - atomColor: {selector: BusStop,          value: "#713f12"}
+
+  # ── CRIMES ─────────────────────────────────────────────────────────────────
+  # Survival crimes = orange. Violent crimes = dark red.
+  # The misreporting argument: the media and background checks treat these the same.
+  # Both colors feed into the same CrimeWave story on Society.
+
+  - atomColor: {selector: Trespassing,       value: "#f97316"}
+  - atomColor: {selector: Loitering,         value: "#fb923c"}
+  - atomColor: {selector: Panhandling,       value: "#fdba74"}
+  - atomColor: {selector: VagrancyCharge,    value: "#f59e0b"}
+  - atomColor: {selector: CurfewViolation,   value: "#fbbf24"}
+  - atomColor: {selector: FraudCharge,       value: "#d97706"}
+  - atomColor: {selector: FailureToProvide,  value: "#b45309"}
+  - atomColor: {selector: DisorderlyConduct, value: "#92400e"}
+  - atomColor: {selector: CheckFraud,        value: "#78350f"}
+  - atomColor: {selector: PublicIntoxication,value: "#713f12"}
+
+  - atomColor: {selector: Murder,            value: "#991b1b"}
+  - atomColor: {selector: ArmedRobbery,      value: "#7f1d1d"}
+
+  # ── KEY EDGES ───────────────────────────────────────────────────────────────
+  # records: bold orange — watch this grow as you step through time
+  - edgeColor:
+      field: records
+      value: "#f97316"
+      style: solid
+      weight: 3
+      showLabel: true
+
+  # possesses: thick bright green — the goal. If this never appears, the trap is proven.
+  - edgeColor:
+      field: possesses
+      value: "#16a34a"
+      style: solid
+      weight: 5
+      showLabel: true
+
+  # loc: thin dashed — where the person currently is
+  - edgeColor:
+      field: loc
+      value: "#94a3b8"
+      style: dashed
+      weight: 1
+      showLabel: false
+
+  # ── SANDWICH ────────────────────────────────────────────────────────────────
+  - atomColor:
+      selector: Sandwich
+      value: "#fbbf24"
+
+  # ── HIDE EVERYTHING THAT IS NOT THE ARGUMENT ────────────────────────────────
+  # All value atoms become text inside Person/Society via the attributes above.
+  # Showing them as nodes too would recreate the mess. Hide them all.
+
+  - hideAtom: {selector: DocumentLabel}
+  - hideAtom: {selector: HousingStatus}
+  - hideAtom: {selector: EmploymentStatus}
+  - hideAtom: {selector: HungerLevel}
+  - hideAtom: {selector: SocialTrust}
+  - hideAtom: {selector: CreditTier}
+  - hideAtom: {selector: DebtLevel}
+  - hideAtom: {selector: GapLength}
+  - hideAtom: {selector: HygieneStatus}
+  - hideAtom: {selector: LegalStanding}
+  - hideAtom: {selector: HealthStatus}
+  - hideAtom: {selector: InsuranceStatus}
+  - hideAtom: {selector: ConnectivityStatus}
+  - hideAtom: {selector: TransportStatus}
+  - hideAtom: {selector: RecordCleanStatus}
+  - hideAtom: {selector: IDStatus}
+  - hideAtom: {selector: SavingsLevel}
+  - hideAtom: {selector: ChildcareAccess}
+  - hideAtom: {selector: BankStatus}
+  - hideAtom: {selector: WardrobeStatus}
+  - hideAtom: {selector: LifeStage}
+  - hideAtom: {selector: PolicyState}
+  - hideAtom: {selector: SympathyLevel}
+  - hideAtom: {selector: StoryFrame}
+
+  - hideAtom: {selector: VerifiedAddress}
+  - hideAtom: {selector: UnverifiedAddress}
+  - hideAtom: {selector: NoAddress}
+  - hideAtom: {selector: Housed}
+  - hideAtom: {selector: Precariously_Housed}
+  - hideAtom: {selector: Homeless}
+  - hideAtom: {selector: Employed}
+  - hideAtom: {selector: Unemployed}
+  - hideAtom: {selector: Blacklisted}
+  - hideAtom: {selector: Satiated}
+  - hideAtom: {selector: Hungry}
+  - hideAtom: {selector: Desperate}
+  - hideAtom: {selector: Trusted}
+  - hideAtom: {selector: Suspicious}
+  - hideAtom: {selector: Flagged}
+  - hideAtom: {selector: GoodCredit}
+  - hideAtom: {selector: FairCredit}
+  - hideAtom: {selector: BadCredit}
+  - hideAtom: {selector: NoCredit}
+  - hideAtom: {selector: NoDebt}
+  - hideAtom: {selector: ManageableDebt}
+  - hideAtom: {selector: HighInterestDebt}
+  - hideAtom: {selector: Defaulted}
+  - hideAtom: {selector: NoGap}
+  - hideAtom: {selector: ShortGap}
+  - hideAtom: {selector: LongGap}
+  - hideAtom: {selector: AlgorithmFiltered}
+  - hideAtom: {selector: Clean}
+  - hideAtom: {selector: Unkempt}
+  - hideAtom: {selector: Unsanitary}
+  - hideAtom: {selector: Clear}
+  - hideAtom: {selector: Charged}
+  - hideAtom: {selector: Convicted}
+  - hideAtom: {selector: AssetsSeized}
+  - hideAtom: {selector: Healthy}
+  - hideAtom: {selector: ChronicIllness}
+  - hideAtom: {selector: Incapacitated}
+  - hideAtom: {selector: Insured}
+  - hideAtom: {selector: Uninsured}
+  - hideAtom: {selector: DeniedCoverage}
+  - hideAtom: {selector: Connected}
+  - hideAtom: {selector: Disconnected}
+  - hideAtom: {selector: NeverHadAccess}
+  - hideAtom: {selector: HasCar}
+  - hideAtom: {selector: BrokenCar}
+  - hideAtom: {selector: NoCar}
+  - hideAtom: {selector: CleanRecord}
+  - hideAtom: {selector: DirtyRecord}
+  - hideAtom: {selector: ExpungementPending}
+  - hideAtom: {selector: HasID}
+  - hideAtom: {selector: NoID}
+  - hideAtom: {selector: CannotProveIdentity}
+  - hideAtom: {selector: Comfortable}
+  - hideAtom: {selector: Minimal}
+  - hideAtom: {selector: Zero}
+  - hideAtom: {selector: InDebt}
+  - hideAtom: {selector: HasChildcare}
+  - hideAtom: {selector: NoChildcare}
+  - hideAtom: {selector: ChildAtInterview}
+  - hideAtom: {selector: HasAccount}
+  - hideAtom: {selector: BelowMinimum}
+  - hideAtom: {selector: NoAccount}
+  - hideAtom: {selector: PreyedUpon}
+  - hideAtom: {selector: BusinessCasual}
+  - hideAtom: {selector: Casual}
+  - hideAtom: {selector: Ragged}
+  - hideAtom: {selector: Infant}
+  - hideAtom: {selector: Youth}
+  - hideAtom: {selector: Adult}
+  - hideAtom: {selector: Elder}
+  - hideAtom: {selector: Active}
+  - hideAtom: {selector: Suspended}
+  - hideAtom: {selector: High}
+  - hideAtom: {selector: Medium}
+  - hideAtom: {selector: Low}
+  - hideAtom: {selector: None}
+  - hideAtom: {selector: CrimeWave}
+  - hideAtom: {selector: InvasionNarrative}
+  - hideAtom: {selector: TaxpayerBurden}
+  - hideAtom: {selector: DangerAlert}
+  - hideAtom: {selector: HumanInterest}
+  - hideAtom: {selector: PolicyDebate}
+  - hideAtom: {selector: DebtCrisisFrame}
+  - hideAtom: {selector: WelfareAbuse}
+  - hideAtom: {selector: UnemployedLazy}
+  - hideAtom: {selector: CriminalElement}
+  - hideAtom: {selector: PublicHealthThreat}
+  - hideAtom: {selector: DrainOnSystem}
+
+  # Hide fields that are already shown as attributes (no duplicate edges)
+
+  - flag: hideDisconnectedBuiltIns
+
+# =============================================================================
+# TEMPORAL: Manual stepping — you control the pace
+# Step through tick by tick and watch the Person box change
+# =============================================================================
+temporal:
+  policy: manual
+
+# =============================================================================
+# PROJECTION: Slice by Person
+# This is the key feature — in Route 6 (side by side), use the dropdown
+# to switch between Person0 (poor) and Person1 (wealthy) and see
+# how the same society produces completely different outcomes
+# =============================================================================
+projections:
+  - sig: Person
+    as: "Life Route"
