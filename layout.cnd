@@ -5,9 +5,8 @@ constraints:
 
 directives:
   - atomColor: {selector: Person,  value: "#E8A838"}
-  - atomColor: {selector: Society, value: "#1e293b"}
+  - atomColor: {selector: Society, value: "#334155"}
 
-  # Everything about Person shown as text inside the box
   - attribute: {field: stage,        selector: Person}
   - attribute: {field: status,       selector: Person}
   - attribute: {field: employment,   selector: Person}
@@ -31,15 +30,8 @@ directives:
   - attribute: {field: debtLevel,    selector: Person}
   - attribute: {field: loc,          selector: Person}
   - attribute: {field: possesses,    selector: Person}
+  - attribute: {field: records,      selector: Person}
 
-  # Criminal record shown as a tag — "records: Trespassing, Loitering, ..."
-  # This keeps crimes as text inside Person instead of floating nodes
-  - tag:
-      toTag: Person
-      name: "records"
-      value: records
-
-  # Society: all laws and sympathy as text, media as a tag
   - attribute: {field: publicSympathy,          selector: Society}
   - attribute: {field: trespassingLaw,          selector: Society}
   - attribute: {field: loiteringLaw,            selector: Society}
@@ -61,15 +53,122 @@ directives:
   - attribute: {field: bankMinimumBalance,      selector: Society}
   - attribute: {field: dresscodeEnforced,       selector: Society}
   - attribute: {field: utilityBillForLease,     selector: Society}
+  - attribute: {field: mediaFrames,             selector: Society}
 
-  # Media frames as a tag — "media: CrimeWave, CriminalElement, ..."
-  # This keeps media frame nodes as text inside Society instead of floating
-  - tag:
-      toTag: Society
-      name: "media"
-      value: mediaFrames
+  - hideAtom: {selector: Infant}
+  - hideAtom: {selector: Youth}
+  - hideAtom: {selector: Adult}
+  - hideAtom: {selector: Elder}
+  - hideAtom: {selector: Homeless}
+  - hideAtom: {selector: Housed}
+  - hideAtom: {selector: Precariously_Housed}
+  - hideAtom: {selector: Employed}
+  - hideAtom: {selector: Unemployed}
+  - hideAtom: {selector: Blacklisted}
+  - hideAtom: {selector: Satiated}
+  - hideAtom: {selector: Hungry}
+  - hideAtom: {selector: Desperate}
+  - hideAtom: {selector: Trusted}
+  - hideAtom: {selector: Suspicious}
+  - hideAtom: {selector: Flagged}
+  - hideAtom: {selector: VerifiedAddress}
+  - hideAtom: {selector: UnverifiedAddress}
+  - hideAtom: {selector: NoAddress}
+  - hideAtom: {selector: Clean}
+  - hideAtom: {selector: Unkempt}
+  - hideAtom: {selector: Unsanitary}
+  - hideAtom: {selector: BusinessCasual}
+  - hideAtom: {selector: Casual}
+  - hideAtom: {selector: Ragged}
+  - hideAtom: {selector: Connected}
+  - hideAtom: {selector: Disconnected}
+  - hideAtom: {selector: NeverHadAccess}
+  - hideAtom: {selector: Comfortable}
+  - hideAtom: {selector: Minimal}
+  - hideAtom: {selector: Zero}
+  - hideAtom: {selector: InDebt}
+  - hideAtom: {selector: NoGap}
+  - hideAtom: {selector: ShortGap}
+  - hideAtom: {selector: LongGap}
+  - hideAtom: {selector: AlgorithmFiltered}
+  - hideAtom: {selector: GoodCredit}
+  - hideAtom: {selector: FairCredit}
+  - hideAtom: {selector: BadCredit}
+  - hideAtom: {selector: NoCredit}
+  - hideAtom: {selector: HasID}
+  - hideAtom: {selector: NoID}
+  - hideAtom: {selector: CannotProveIdentity}
+  - hideAtom: {selector: HasAccount}
+  - hideAtom: {selector: BelowMinimum}
+  - hideAtom: {selector: NoAccount}
+  - hideAtom: {selector: PreyedUpon}
+  - hideAtom: {selector: HasCar}
+  - hideAtom: {selector: BrokenCar}
+  - hideAtom: {selector: NoCar}
+  - hideAtom: {selector: Insured}
+  - hideAtom: {selector: Uninsured}
+  - hideAtom: {selector: DeniedCoverage}
+  - hideAtom: {selector: Clear}
+  - hideAtom: {selector: Charged}
+  - hideAtom: {selector: Convicted}
+  - hideAtom: {selector: AssetsSeized}
+  - hideAtom: {selector: Healthy}
+  - hideAtom: {selector: ChronicIllness}
+  - hideAtom: {selector: Incapacitated}
+  - hideAtom: {selector: HasChildcare}
+  - hideAtom: {selector: NoChildcare}
+  - hideAtom: {selector: ChildAtInterview}
+  - hideAtom: {selector: CleanRecord}
+  - hideAtom: {selector: DirtyRecord}
+  - hideAtom: {selector: ExpungementPending}
+  - hideAtom: {selector: NoDebt}
+  - hideAtom: {selector: ManageableDebt}
+  - hideAtom: {selector: HighInterestDebt}
+  - hideAtom: {selector: Defaulted}
+  - hideAtom: {selector: Active}
+  - hideAtom: {selector: Suspended}
+  - hideAtom: {selector: High}
+  - hideAtom: {selector: Medium}
+  - hideAtom: {selector: Low}
+  - hideAtom: {selector: None}
+  - hideAtom: {selector: Park}
+  - hideAtom: {selector: Shelter}
+  - hideAtom: {selector: StreetCorner}
+  - hideAtom: {selector: GovernmentOffice}
+  - hideAtom: {selector: WorkPlace}
+  - hideAtom: {selector: Outside}
+  - hideAtom: {selector: Library}
+  - hideAtom: {selector: LaundroMat}
+  - hideAtom: {selector: FoodBank}
+  - hideAtom: {selector: CourtHouse}
+  - hideAtom: {selector: Hospital}
+  - hideAtom: {selector: BusStop}
+  - hideAtom: {selector: Sandwich}
+  - hideAtom: {selector: Murder}
+  - hideAtom: {selector: ArmedRobbery}
+  - hideAtom: {selector: Trespassing}
+  - hideAtom: {selector: Loitering}
+  - hideAtom: {selector: Panhandling}
+  - hideAtom: {selector: VagrancyCharge}
+  - hideAtom: {selector: CurfewViolation}
+  - hideAtom: {selector: FraudCharge}
+  - hideAtom: {selector: FailureToProvide}
+  - hideAtom: {selector: DisorderlyConduct}
+  - hideAtom: {selector: CheckFraud}
+  - hideAtom: {selector: PublicIntoxication}
+  - hideAtom: {selector: CrimeWave}
+  - hideAtom: {selector: InvasionNarrative}
+  - hideAtom: {selector: TaxpayerBurden}
+  - hideAtom: {selector: DangerAlert}
+  - hideAtom: {selector: HumanInterest}
+  - hideAtom: {selector: PolicyDebate}
+  - hideAtom: {selector: DebtCrisisFrame}
+  - hideAtom: {selector: WelfareAbuse}
+  - hideAtom: {selector: UnemployedLazy}
+  - hideAtom: {selector: CriminalElement}
+  - hideAtom: {selector: PublicHealthThreat}
+  - hideAtom: {selector: DrainOnSystem}
 
-  - flag: hideDisconnected
   - flag: hideDisconnectedBuiltIns
 
 temporal:

@@ -934,7 +934,8 @@ pred wealthyInit[p: Person] {
   p.stage        = Infant
   p.label        = VerifiedAddress  -- born with an address
   p.status       = Housed           -- born housed
-  no p.records                      -- clean record
+  no p.records                      -- clean record, stays clean
+  always no p.records               -- wealth means no survival crimes ever
   p.hunger       = Satiated         -- fed
   p.trust        = Trusted          -- trusted by default
   no p.possesses
@@ -983,75 +984,33 @@ pred dropDressCode          { Society.dresscodeEnforced       = Suspended }
 -- =============================================================================
 -- RUN BLOCKS
 -- =============================================================================
--- There are 6 runs below, mirroring the climbing project structure.
--- In Sterling, use the instance selector (left arrows < >) to switch between them.
--- Each run is a different "route" through life.
--- The CnD layout will project by Person so you can step through each life
--- tick by tick and see every status change.
+-- TWO ROUTES. Switch between them using the dropdown in Sterling's Explorer.
 --
---  Route 1: POOR  — born into the trap, every door closes, never gets sandwich
---  Route 2: POOR  — trap fully closes by adulthood (deep trap)
---  Route 3: POOR  — all misreporting frames running, sympathy collapses
---  Route 4: WEALTHY — born with everything, gets sandwich immediately
---  Route 5: WEALTHY — wealthy person, verify never trapped (UNSAT)
---  Route 6: SIDE BY SIDE — poor p1 and wealthy p2 in the SAME society
+--   ROUTE 1 (POOR):    Born into the trap. Every door closes. No sandwich.
+--                      Use the Time tab arrows to step tick by tick.
+--                      Watch: records accumulate, hygiene degrades, debt grows.
+--                      The possesses field is always empty. That is the proof.
+--
+--   ROUTE 2 (WEALTHY): Born with everything. Same society. Same laws.
+--                      Use the Time tab arrows to step tick by tick.
+--                      Watch: possesses shows Sandwich immediately.
+--                      Compare Person box to Route 1 — same system, opposite outcome.
 -- =============================================================================
 
--- ROUTE 1: Poor person. Born into the trap. Trace runs, never gets the sandwich.
--- Step through to watch every resource field degrade tick by tick.
+-- ROUTE 1: POOR
+-- The person starts homeless with no ID, no bank, no credit, no connectivity.
+-- All 20 laws are active. Step forward and watch the trap close.
 run {
   trace
   some p: Person | bornIntoTrap[p]
 } for exactly 1 Person, 1 Sandwich, 6 Int
 
--- ROUTE 2: Poor person. Watch crimes accumulate over time (the ratchet).
--- Records grow, hygiene degrades, debt climbs — the trap tightens tick by tick.
-run {
-  trace
-  some p: Person | bornIntoTrap[p]
-  eventually (some p: Person | some p.records)
-} for exactly 1 Person, 1 Sandwich, 6 Int
-
--- ROUTE 3: Poor person. The media misreporting engine at full power.
--- Watch CrimeWave + CriminalElement + UnemployedLazy + DebtCrisisFrame all run at once.
-run {
-  trace
-  eventually (
-    CrimeWave in Society.mediaFrames and
-    CriminalElement in Society.mediaFrames and
-    UnemployedLazy in Society.mediaFrames and
-    DebtCrisisFrame in Society.mediaFrames
-  )
-} for exactly 1 Person, 1 Sandwich, 6 Int
-
--- ROUTE 4: Wealthy person. Every door is open. Gets the sandwich.
--- The same laws. The same society. Different starting point.
+-- ROUTE 2: WEALTHY
+-- The person starts housed, employed, insured, connected, trusted.
+-- Same 20 laws. Step forward — sandwich appears immediately.
 run {
   some p: Person | {
     wealthyInit[p]
     always step
   }
 } for exactly 1 Person, 1 Sandwich, 6 Int
-
--- ROUTE 5: Wealthy person. Formally prove they can NEVER be fully trapped.
--- This run produces UNSAT — use it to contrast with Routes 1-3.
--- To run: uncomment and comment out Routes 1-4 above.
--- run {
---   some p: Person | {
---     wealthyInit[p]
---     always step
---     eventually fullyTrapped[p]
---   }
--- } for exactly 1 Person, 1 Sandwich, 6 Int
-
--- ROUTE 6: Side by side. Poor person (p1) and wealthy person (p2) in the same society.
--- p1 never gets the sandwich. p2 gets it. Same laws. Same tick. Different outcomes.
--- In Sterling, the Person projection will let you toggle between p1 and p2.
-run {
-  some p1, p2: Person | {
-    p1 != p2
-    bornIntoTrap[p1]
-    wealthyInit[p2]
-    always step
-  }
-} for exactly 2 Person, 1 Sandwich, 6 Int
