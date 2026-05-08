@@ -1318,3 +1318,19 @@ run {
     eventually wealthyElderState[p]
   }
 } for exactly 1 Person, 1 Sandwich, 6 Int
+
+-- ROUTE 9: THE PROOF — POOR PERSON TRIES TO GET THE SANDWICH
+-- This run asks: can a person born into the trap ever get the sandwich?
+-- The answer is UNSAT — no valid trace exists where this happens.
+-- This is not a bug or an error. It is the formal proof that the trap is closed.
+-- Sterling shows "Unsatisfiable" because the solver has checked every possible
+-- sequence of decisions and confirmed: none of them lead to the sandwich.
+-- The poor person is not failing to try hard enough.
+-- The system makes success formally impossible.
+run {
+  trace
+  some p: Person | {
+    bornIntoTrap[p]
+    eventually some p.possesses
+  }
+} for exactly 1 Person, 1 Sandwich, 6 Int

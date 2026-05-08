@@ -1,14 +1,4 @@
-================================================================================
-VISUALIZATIONS GUIDE — THE SANDWICH TRAP
-================================================================================
 
-HOW TO READ THE VISUALIZATION:
-  - Society box (dark): the system — laws, sympathy, media stories
-  - Person box (amber): the individual — status, hunger, trust, possesses
-  - Orange dashed arrow: what the person TRIED this tick (TryJob/TryAid/TryStreet/GaveUp)
-  - Red solid arrows: criminal record — crimes that accumulated from surviving
-  - Green arrow: person has the sandwich (goal achieved)
-  Use the TIME TAB arrows in Sterling to step tick by tick through the life.
 
 ================================================================================
 SECTION 1 — THE ROUTES
