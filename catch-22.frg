@@ -1039,6 +1039,162 @@ pred dropBankMinimum        { Society.bankMinimumBalance      = Suspended }
 pred dropDressCode          { Society.dresscodeEnforced       = Suspended }
 
 -- =============================================================================
+-- VARIED STARTING POINTS: Different kinds of poor and wealthy
+-- All poor variants end at poorElderState. All wealthy end at wealthyElderState.
+-- The starting point doesn't matter — class does.
+-- =============================================================================
+
+-- POOR VARIANTS: different starting circumstances, same ending
+pred almostMadeItInit[p: Person] {
+  -- Started slightly better — had a job briefly, has a car, some savings
+  -- but still born without ID or verified address
+  p.stage        = Infant
+  p.label        = UnverifiedAddress
+  p.status       = Precariously_Housed
+  no p.records
+  p.hunger       = Hungry
+  p.trust        = Suspicious
+  no p.possesses
+  p.loc          = Outside
+  p.employment   = Unemployed
+  p.decision     = GaveUp
+  p.creditScore  = FairCredit     -- slightly better than NoCredit
+  p.debtLevel    = ManageableDebt -- some debt but not catastrophic
+  p.resumeGap    = ShortGap       -- only a short gap so far
+  p.hygiene      = Clean
+  p.legalStatus  = Clear
+  p.healthStatus = Healthy
+  p.insurance    = Uninsured
+  p.connectivity = Disconnected   -- had it, lost it
+  p.transport    = HasCar         -- has a car (but no savings to maintain it)
+  p.recordClean  = CleanRecord
+  p.idStatus     = NoID
+  p.savings      = Minimal
+  p.childcare    = NoChildcare
+  p.bankAccount  = BelowMinimum
+  p.wardrobe     = Casual
+}
+
+pred illInit[p: Person] {
+  -- Born poor AND with chronic illness — insurance paradox hits immediately
+  p.stage        = Infant
+  p.label        = NoAddress
+  p.status       = Homeless
+  no p.records
+  p.hunger       = Hungry
+  p.trust        = Suspicious
+  no p.possesses
+  p.loc          = Outside
+  p.employment   = Unemployed
+  p.decision     = GaveUp
+  p.creditScore  = NoCredit
+  p.debtLevel    = NoDebt
+  p.resumeGap    = NoGap
+  p.hygiene      = Clean
+  p.legalStatus  = Clear
+  p.healthStatus = ChronicIllness -- born sick, can't work full-time
+  p.insurance    = Uninsured
+  p.connectivity = NeverHadAccess
+  p.transport    = NoCar
+  p.recordClean  = CleanRecord
+  p.idStatus     = NoID
+  p.savings      = Zero
+  p.childcare    = NoChildcare
+  p.bankAccount  = NoAccount
+  p.wardrobe     = Casual
+}
+
+pred chargedInit[p: Person] {
+  -- Born poor with a pre-existing charge (inherited legal trouble, wrong place wrong time)
+  p.stage        = Infant
+  p.label        = NoAddress
+  p.status       = Homeless
+  p.records      = Trespassing   -- already has a survival crime on record
+  p.hunger       = Hungry
+  p.trust        = Suspicious
+  no p.possesses
+  p.loc          = Outside
+  p.employment   = Unemployed
+  p.decision     = GaveUp
+  p.creditScore  = NoCredit
+  p.debtLevel    = NoDebt
+  p.resumeGap    = NoGap
+  p.hygiene      = Clean
+  p.legalStatus  = Charged       -- already in the legal system
+  p.healthStatus = Healthy
+  p.insurance    = Uninsured
+  p.connectivity = NeverHadAccess
+  p.transport    = NoCar
+  p.recordClean  = DirtyRecord   -- record is already dirty
+  p.idStatus     = NoID
+  p.savings      = Zero
+  p.childcare    = NoChildcare
+  p.bankAccount  = NoAccount
+  p.wardrobe     = Casual
+}
+
+-- WEALTHY VARIANTS: different kinds of privilege, same ending
+pred newMoneyInit[p: Person] {
+  -- First-generation wealth — earned it, but still has all the advantages
+  p.stage        = Infant
+  p.label        = VerifiedAddress
+  p.status       = Housed
+  no p.records
+  always no p.records
+  p.hunger       = Satiated
+  p.trust        = Trusted
+  no p.possesses
+  p.loc          = WorkPlace
+  p.employment   = Employed
+  p.decision     = TryJob
+  p.creditScore  = GoodCredit
+  p.debtLevel    = ManageableDebt  -- some student loans but manageable
+  p.resumeGap    = NoGap
+  p.hygiene      = Clean
+  p.legalStatus  = Clear
+  p.healthStatus = Healthy
+  p.insurance    = Insured
+  p.connectivity = Connected
+  p.transport    = HasCar
+  p.recordClean  = CleanRecord
+  p.idStatus     = HasID
+  p.savings      = Comfortable
+  p.childcare    = HasChildcare
+  p.bankAccount  = HasAccount
+  p.wardrobe     = BusinessCasual
+}
+
+pred middleClassInit[p: Person] {
+  -- Middle class — not wealthy but has the key documents and stability
+  p.stage        = Infant
+  p.label        = VerifiedAddress
+  p.status       = Housed
+  no p.records
+  always no p.records
+  p.hunger       = Hungry          -- not satiated, but not desperate
+  p.trust        = Trusted
+  no p.possesses
+  p.loc          = WorkPlace
+  p.employment   = Employed
+  p.decision     = TryJob
+  p.creditScore  = FairCredit
+  p.debtLevel    = ManageableDebt
+  p.resumeGap    = NoGap
+  p.hygiene      = Clean
+  p.legalStatus  = Clear
+  p.healthStatus = Healthy
+  p.insurance    = Insured
+  p.connectivity = Connected
+  p.transport    = HasCar
+  p.recordClean  = CleanRecord
+  p.idStatus     = HasID
+  p.savings      = Minimal
+  p.childcare    = HasChildcare
+  p.bankAccount  = HasAccount
+  p.wardrobe     = BusinessCasual
+}
+
+-- =============================================================================
 -- RUN BLOCKS
 -- =============================================================================
 -- TWO ROUTES. Switch using the Explorer dropdown in Sterling.
@@ -1059,11 +1215,18 @@ pred dropDressCode          { Society.dresscodeEnforced       = Suspended }
 --   Same Society. Same laws. Different start. Different end. That is the proof.
 -- =============================================================================
 
--- ROUTE 1: POOR
--- Starts hopeful (Infant, no records, clean).
--- Ends at poorElderState: Homeless, Desperate, Flagged, criminal record, no sandwich.
--- The decision field shows GaveUp by adulthood — not from lack of effort,
--- but because all three avenues are formally closed simultaneously.
+-- =============================================================================
+-- POOR ROUTES (1-5): Different starting points. Same ending. Always.
+-- Every poor person ends: Homeless, Desperate, Flagged, records, no sandwich.
+-- The decision arrow locks to GaveUp. The red crime arrows accumulate.
+-- This is not about choices. It is about starting conditions.
+-- =============================================================================
+
+-- ROUTE 1: BORN INTO THE TRAP
+-- The baseline. Born with nothing. No ID, no address, no bank, no connectivity.
+-- All 20 laws active from birth. Every resource degrades every tick.
+-- Watch: orange decision arrow hits GaveUp by Youth and never moves again.
+-- End state: Homeless, Desperate, Flagged, full record, no sandwich.
 run {
   trace
   some p: Person | {
@@ -1072,13 +1235,100 @@ run {
   }
 } for exactly 1 Person, 1 Sandwich, 6 Int
 
--- ROUTE 2: WEALTHY
--- Starts with everything.
--- Ends at wealthyElderState: Housed, Trusted, sandwich.
--- Same Society box. Same laws. Starting point determines ending point.
+-- ROUTE 2: ALMOST MADE IT
+-- Started slightly better — precarious housing, a car, fair credit, short resume gap.
+-- Looks promising at first. The car breaks (no savings to fix it).
+-- The gap grows to AlgorithmFiltered. Credit falls. Housing lost.
+-- Same end state as Route 1. The small head start changes nothing.
+run {
+  trace
+  some p: Person | {
+    almostMadeItInit[p]
+    eventually poorElderState[p]
+  }
+} for exactly 1 Person, 1 Sandwich, 6 Int
+
+-- ROUTE 3: BORN SICK
+-- Starts with chronic illness. The insurance paradox closes immediately:
+-- can't work full-time → loses insurance → illness worsens → can't work.
+-- Health degrades to Incapacitated by Adult. Records accumulate from survival.
+-- Same end state. Illness did not cause the trap. The system did.
+run {
+  trace
+  some p: Person | {
+    illInit[p]
+    eventually poorElderState[p]
+  }
+} for exactly 1 Person, 1 Sandwich, 6 Int
+
+-- ROUTE 4: ALREADY CHARGED
+-- Born poor AND already in the legal system. Record is dirty from tick 0.
+-- Every employer background check fails immediately. Aid avenue also closed.
+-- The legal defense loop activates: charged + no money = assets seized = new charge.
+-- Same end state as Route 1, reached faster.
+run {
+  trace
+  some p: Person | {
+    chargedInit[p]
+    eventually poorElderState[p]
+  }
+} for exactly 1 Person, 1 Sandwich, 6 Int
+
+-- ROUTE 5: BORN POOR, TRIES EVERYTHING
+-- Same as Route 1 but solver picks the best possible moves each tick.
+-- Job avenue? Blocked. Aid? Blocked. Street? Blocked. GaveUp.
+-- Even with optimal decisions, the structural barriers cannot be overcome.
+-- Same end state. The trap is not about decision quality.
+run {
+  trace
+  some p: Person | {
+    bornIntoTrap[p]
+    eventually poorElderState[p]
+    -- solver finds the MOST favorable trace for this person
+  }
+} for exactly 1 Person, 1 Sandwich, 8 Int
+
+-- =============================================================================
+-- WEALTHY ROUTES (6-8): Different starting points. Same ending. Always.
+-- Every wealthy person ends: Housed, Trusted, sandwich. Satiated.
+-- The decision arrow stays TryJob. No red crime arrows ever appear.
+-- Same Society. Same laws. Different start. Different end.
+-- =============================================================================
+
+-- ROUTE 6: OLD MONEY
+-- Born with everything. VerifiedAddress, GoodCredit, HasAccount, HasID, Insured.
+-- Every avenue open from tick 0. Sandwich appears in State 1.
+-- Watch: no crime arrows ever. Decision stays TryJob throughout.
+-- The baseline contrast to Route 1.
 run {
   some p: Person | {
     wealthyInit[p]
+    always step
+    eventually wealthyElderState[p]
+  }
+} for exactly 1 Person, 1 Sandwich, 6 Int
+
+-- ROUTE 7: NEW MONEY
+-- First-generation wealth. Some manageable debt, but has all the key documents.
+-- Address verified. ID exists. Bank account exists. Employment pipeline open.
+-- Debt is manageable because low-interest loans are available (good credit).
+-- Same end state as Route 6. The debt that would trap a poor person is escapable here.
+run {
+  some p: Person | {
+    newMoneyInit[p]
+    always step
+    eventually wealthyElderState[p]
+  }
+} for exactly 1 Person, 1 Sandwich, 6 Int
+
+-- ROUTE 8: MIDDLE CLASS
+-- Not wealthy by most definitions. Starts hungry (not satiated). Minimal savings.
+-- Fair credit, not good. But has the critical documents: ID, address, bank account.
+-- Those three things — ID, address, connectivity — are what the gates require.
+-- Ends housed and fed. Same end state. Documents are the dividing line, not effort.
+run {
+  some p: Person | {
+    middleClassInit[p]
     always step
     eventually wealthyElderState[p]
   }
