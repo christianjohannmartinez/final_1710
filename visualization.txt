@@ -1,0 +1,179 @@
+================================================================================
+VISUALIZATIONS GUIDE — THE SANDWICH TRAP
+================================================================================
+
+HOW TO READ THE VISUALIZATION:
+  - Society box (dark): the system — laws, sympathy, media stories
+  - Person box (amber): the individual — status, hunger, trust, possesses
+  - Orange dashed arrow: what the person TRIED this tick (TryJob/TryAid/TryStreet/GaveUp)
+  - Red solid arrows: criminal record — crimes that accumulated from surviving
+  - Green arrow: person has the sandwich (goal achieved)
+  Use the TIME TAB arrows in Sterling to step tick by tick through the life.
+
+================================================================================
+SECTION 1 — THE ROUTES
+================================================================================
+
+POOR ROUTES (1–5): All end Homeless, Desperate, no sandwich. Always.
+------------------------------------------------------------------------
+
+Route 1 — BORN INTO THE TRAP
+  The baseline poor person. No ID, no address, no bank account, no internet.
+  All 20 laws active from birth. Decision arrow hits GaveUp almost immediately
+  and never moves. Red crime arrows accumulate each tick just from surviving.
+  This is the floor. Everything else is a variation on this.
+
+Route 2 — ALMOST MADE IT
+  Starts better: precarious housing, a car, fair credit, short resume gap.
+  Looks hopeful at birth. Then: car breaks (zero savings to fix it), gap grows
+  to AlgorithmFiltered, credit falls, housing lost. Same ending as Route 1.
+  The point: a small head start cannot overcome structural barriers.
+
+Route 3 — BORN SICK
+  Starts with chronic illness. The insurance paradox fires immediately —
+  can't work full-time, so loses employer insurance, so illness worsens,
+  so truly can't work. Illness did not cause the trap. The employer-only
+  insurance system did. Same ending as Route 1.
+
+Route 4 — ALREADY CHARGED
+  Born poor AND already in the legal system (Trespassing on record, Charged).
+  Every background check fails at tick 0. Legal defense loop activates:
+  no money → no lawyer → assets seized → FailureToProvide charge added.
+  Same ending as Route 1, reached faster.
+
+Route 5 — TRIES EVERYTHING (longer trace)
+  Same start as Route 1, but Forge finds the most favorable possible trace.
+  Even with optimal decisions, every avenue stays closed. Same ending.
+  The trap is structural, not a matter of decision quality.
+
+WEALTHY ROUTES (6–8): All end Housed, Trusted, sandwich. Always.
+------------------------------------------------------------------------
+
+Route 6 — OLD MONEY
+  Born with everything. VerifiedAddress, GoodCredit, HasID, Insured, HasAccount.
+  Sandwich appears in state 1. No crime arrows ever. The baseline contrast.
+
+Route 7 — NEW MONEY
+  First-generation wealth. Some manageable debt — but has ID, address,
+  bank account. That debt is escapable because good credit means low-interest
+  loans are available. The same debt level destroys a poor person.
+  Same ending as Route 6.
+
+Route 8 — MIDDLE CLASS
+  Starts hungry (not satiated) with minimal savings. Not wealthy by most
+  definitions. But has verified address, ID, and a bank account.
+  Those three documents are the gatekeepers. Has them → same ending as Route 6.
+  The dividing line is not effort or even money. It is documentation.
+
+================================================================================
+SECTION 2 — THE MISREPORTING
+================================================================================
+
+The media and employer background checks pool fundamentally different things
+as equivalent. This is modeled formally — the same StoryFrame fires for all of
+them, and the background check output is binary: RECORD or NO RECORD.
+
+CRIME POOLING (CrimeWave + CriminalElement stories):
+  Trespassing   = sitting in a park while homeless (survival)
+  Loitering     = standing on a street corner while poor (survival)
+  Panhandling   = asking for help while desperate (survival)
+  VagrancyCharge= existing outside with no address (survival)
+  CurfewViolation = being outside at night with nowhere to go (survival)
+  Murder        = killing someone (violence)
+  ArmedRobbery  = robbing someone with a weapon (violence)
+
+  The CrimeWave media story fires when ANY survival infraction exists.
+  The CriminalElement story fires when ANY record of ANY type exists.
+  Both pool all of the above as a single "crime problem."
+  An employer background check sees the same output for all of them.
+
+OTHER MISREPORTING FRAMES:
+  DebtCrisisFrame   — reports high-interest debt as "irresponsible borrowing,"
+                      ignoring that the debt came from predatory check-cashing
+                      fees that exist because the person had no bank account.
+  UnemployedLazy    — reports long employment gaps as "won't work," ignoring
+                      that hiring algorithms automatically filter out anyone
+                      with a gap regardless of qualifications.
+  PublicHealthThreat— reports unsanitary hygiene as a public health risk,
+                      ignoring that hygiene degraded because there was no bank
+                      account, no gym membership, and no shower access.
+  WelfareAbuse      — reports someone at the GovernmentOffice as "gaming the
+                      system," ignoring the 14 barriers that sent them there.
+  DrainOnSystem     — reports elder homelessness as a taxpayer burden, ignoring
+                      that the system produced this outcome over 60+ years.
+  HumanInterest     — the sympathetic story. Only runs when NO negative frames
+                      are active. In practice, almost never fires.
+
+HOW IT FEEDS BACK:
+  Each negative frame degrades publicSympathy.
+  Low sympathy → all 20 laws stay Active.
+  Active laws → more survival crimes generated.
+  More survival crimes → more negative media frames.
+  The loop is formal and provable. It has no exit.
+
+================================================================================
+SECTION 3 — THE CATCH-22s
+================================================================================
+
+Each catch-22 is a named predicate in the model. Each one closes a door.
+All doors are closed simultaneously for a person born poor.
+
+1. THE JOB AVENUE
+   Need job → need clean record → record built from surviving without job.
+   Also needs: housing (for paperwork), clean appearance, no resume gap.
+
+2. THE CREDIT CATCH
+   Need loan to escape high-interest debt → debt ruins credit score →
+   bad credit bars low-interest loans → debt stays. No exit.
+
+3. THE RESUME GAP
+   Need job to explain unemployment gap → algorithm filters long-term unemployed
+   → gap grows longer → more filtered → more unemployed. No exit.
+
+4. THE CLEANLINESS BARRIER
+   Need shower to get job → need gym for shower → need bank account for gym →
+   need job for account → no account → hygiene degrades → no job.
+
+5. THE LEGAL DEFENSE LOOP
+   Need lawyer to fight charge → fees require selling assets → losing assets
+   triggers FailureToProvide charge → new charge added to record.
+
+6. THE INSURANCE PARADOX
+   Need insurance to treat illness → illness prevents full-time work →
+   no full-time work cancels employer insurance → illness worsens.
+
+7. THE INTERNET ESSENTIAL
+   Need internet to apply for aid → aid funds the phone bill → no bill payment
+   means no internet → can't apply for aid. Services are online-only.
+
+8. THE TRANSPORTATION SINK
+   Need car for affordable (distant) housing → commute costs eat rent savings →
+   car breaks (zero savings) → lose job and housing simultaneously.
+
+9. THE EXPUNGEMENT WALL
+   Need clean record for high-paying job → need $2,000 to expunge record →
+   low-paying job (only option with dirty record) can't generate $2,000.
+
+10. THE VERIFICATION SPIRAL
+    Need birth certificate for ID → need ID to request birth certificate →
+    no family left to verify identity. No entry point into the document system.
+
+11. THE SAFETY DEPOSIT
+    Need stable home to stop survival spending (laundromats, fast food) →
+    survival spending prevents saving for deposit → no deposit, no home.
+
+12. THE CHILDCARE KNOT
+    Need job to pay for daycare → need daycare for interview → child present
+    at interview → flagged as unreliable → DisorderlyConduct charge.
+
+13. THE BANKING MINIMUM
+    Need account to avoid predatory fees → account requires minimum balance →
+    low wages keep balance below threshold → fees drain account → CheckFraud.
+
+14. THE PROFESSIONAL WARDROBE
+    Need business clothes for job → clothes cost more than a week's food →
+    chose food → appearance flagged as unprofessional → no job.
+
+15. THE ADDRESS VERIFICATION
+    Need utility bill for lease proof → need lease for utility account →
+    need residency proof for lease → no starting point in the cycle.
