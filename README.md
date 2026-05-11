@@ -2,37 +2,68 @@
 
 ## What it is
 
-A comedic-critical art piece in Temporal Forge. For example, a person without a permanent address tries to get help through three avenues: the job market, the housing market, and the aid office. Several paths exist. None of them work for this person. The key distinction is that it is not because the model explicitly bids it, rather that we have built a system that closes every "door" while still appearing, at all the individual steps, to be reasonable. The basic point is not to label the system cruel. The point is to make a system that is formally correct but remains structurally impossible to navigate if you start from the wrong place.
+A comedic-critical art piece in Temporal Forge. For example, a person without a permanent
+address tries to get help. Several avenues exist. None of them work — not
+because the model says so explicitly, but because it has built a self-reinforcing
+system that closes every door while appearing, at each individual step, to be
+procedurally reasonable.
+
+What is really the point? The identity of the code. It seems to be deliberate in constructing a system that does not work holistically. The code wants to pretend like it is a well-meaning system, when it really denies help. It does this in many ways, and I will provide detaited descriptions of the instances it does this. 
+(1) In practice, the only crime committed by a person in our system is loitering, the lamest of all crimes, but the code seeks to mislead by listing various violent crimes first in the sig extensions. 
+(2) The lack of an address is reframed as a paperwork issue instead of the lack of a home: this person hasn't filled out their address on the form. 
+(3) Similarly, the job search frames the the need for an address as a place to send the check
+(4) This allows us also to make choices about when not to make things veiled, as is the case with the fact that if a person is wealthy they are constantly afforded any privilege they need
+(5) There are many more, but the a major part of our interactive component is for the viewer to be confused and start to slowly see these things!
+
+How to run? The major run statements confirm that a person cannot be born homeless and then die housed, and other such predicaments. 
 
 ## Three buckets
 
-- Core: people, housing status, document labels and deficiencies, address verification, mailing address, employment, experience, crime records, aid status, friendship and social network dynamics, media stories, public sympathy, the loitering law, the loop between all of them.
-- Related but not modeled: labels expiring over time, money, geography, scarcity of aid resources.
-- Out of scope: real welfare policy, any explicit statement that the system is discriminatory.
+- Core: people, status, document labels, location, crime records, media stories,
+  public sympathy, the trespassing law, the loop between all of them.
+- Related but not modeled: multiple interacting people, labels expiring over time,
+  a sandwich or tangible goal object, money.
+- Out of scope: real welfare policy, geography, any explicit statement that the
+  system is discriminatory.
 
 ## Goals
 
-- Foundation: the loop runs, a person accumulates loitering records, media responds, sympathy does not recover, the system is stable. The three avenues (job, housing, aid office) each function as written
-- Target: show via `unsat` or other visualizer methods that a person starting from Homeless/UnverifiedAddress cannot reach AidGranted, regardless of path taken
-- Reach: an interactive interface where the viewer attempts to find a way through the system themselves, directing the solver down one avenue or another, and watching each one close
+- Foundation: the loop runs, a person accumulates trespassing records, media
+  responds, sympathy does not recover, the system is stable.
+- Target: show via `unsat` that a person starting from Homeless / UnverifiedAddress
+  cannot reach a state where aid is granted, regardless of path taken.
+- Reach: an interactive interface where the viewer attempts to find a way through
+  the system themselves, directing the solver down one avenue or another, and
+  watching each one close.
 
-## How the model works
+## Status following Design Check 2 redirection
 
-Each step applies all predicates simultaneously. A homeless person has no mailing address, so UnverifiedAddress is added as a label. Any Deficiency label causes the aid office to deny aid. Being outside accumulates Loitering records. More loitering triggers a CrimeIncrease media story. A media story keeps sympathy Low. Low sympathy keeps the loitering law active. The law adds more records. The crime list defines Murder, Manslaughter, ArmedRobbery, and Loitering. Oly Loitering is ever applied, despite the framing in media as Crime in general
-
-## Modeling choices and tradeoffs
-
-Aid denial reads as a paperwork problem rather than a direct check on housing status, because the aid predicate checks for the absence of any Deficiency label, never mentioning homelessness, even though the two might actually be structurally equivalent. Also, the friendship predicate closes off the mutualAid path: a wealthy contact who could lend an address drops the person once they are visibly homeless and asking. The job market ties back to the same paperwork gate; we see that employment requires a non-NoAddress mailing address. Sympathy cannot recover while any media story is active. No stories requires no new loitering, which requires the law to be inactive, which requires High sympathy. This is the trap we are trying to outline as a whole. Tradeoffs were minimal, mostly around limiting the sceop and complexity due to the underlying difficulty of this topic. We left out dozens of others systems we could have looped in to give time to properly display the ones we settled on.
-
-## What we got out of the modeling exercise
-
-The main finding is that the individual predicates, each of which is reasonable on its own in the system, combine into a larger system with no exit for the person who needs one. The job avenue requires an address. The address requires housing or wealth. The aid avenue requires clean documentation. Clean documentation requires an address. The social network that could provide an address drops you once you are visibly in need. Forge makes this structure verifiable rather than just arguable.
-
-## Status
-
-- sigs, init, all avenue predicates, address dynamics, friendship and social network dynamics, media and sympathy dynamics, and trace structure are all written
+- sigs, init, trespassing law, media transitions, sympathy dynamics, and trace
+  structure are all written
 - the self-reinforcing loop is structurally present
-- Deficiency-based aid denial is in place
-- the crime list (Murder, Manslaughter, ArmedRobbery, Loitering) is defined; only Loitering is ever applied, to provide commentary on the nature of media and public interaction
-- misleading comments have not been added yet, pending timing on deadline
-- custom visualizer is in the works
+- deniedAid is in place with the paperwork framing
+- the crime list (Murder, ArmedRobbery, Trespassing) is defined; only Trespassing
+  is ever applied
+- misleading comments have not been added yet, pending
+- custom visualizer is in the works and being perfected
+
+## Files
+
+- `final.frg` — the original, now outdated, model
+- `final2.frg` — the model
+- `final_tests.frg` — tests (currently references older sandwich model sigs)
+- `README.md` — this file
+
+Running from the terminal:
+
+    racket catch-22.frg
+    racket catch-22_test.frg
+
+
+## AI Usage 
+Used to come up with use cases for the scenarios that people in the system could experience.
+
+## Open questions for the mentor
+
+1. Should `Society` be the only locus of some sympathy/law state, or should individual Person records track something like a publicPerception field separately?
+2. Is `Park` the right single safe location, or do you think should there be multiple designated zones that might change over time like the real world? Or too much?

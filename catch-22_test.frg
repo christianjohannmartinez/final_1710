@@ -487,5 +487,4 @@ test expect {
       Loitering not in p.records'
     }
   } for 1 Person is unsat
-gi
 }
