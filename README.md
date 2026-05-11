@@ -49,9 +49,9 @@ How to run? The major run statements confirm that a person cannot be born homele
 
 ## Files
 
-- `final.frg` — the original, now outdated, model
-- `final2.frg` — the model
-- `final_tests.frg` — tests (currently references older sandwich model sigs)
+- `catch-22.frg` — the model
+- `catch-22_test.frg` — tests 
+- `layout.cnd` - layout file
 - `README.md` — this file
 
 Running from the terminal:
