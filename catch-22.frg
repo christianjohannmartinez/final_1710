@@ -7,9 +7,6 @@ option min_tracelength 4
 abstract sig Status {}
 one sig Homeless, Housed extends Status {}
 
-abstract sig LifeStage {}
-one sig Birth, Childhood, Adulthood, MiddleAge, Death extends LifeStage {}
-
 sig Address {}
 one sig NoAddress extends Address {}
 
@@ -65,15 +62,13 @@ sig Person {
   var aid: one AidStatus,
   var friends: set Person,
   var askingForAid: one Bool,
-  var decision: one Decision,  -- orange dashed arrow: avenue tried this tick
-  var stage: one LifeStage
+  var decision: one Decision   -- orange dashed arrow: avenue tried this tick
 }
 
 one sig Society {
   var mediaStory: set StoryType,
   var publicSympathy: one SympathyLevel,
-  var loiteringLawActive: one Bool,
-  var bathroomsLocked: one Bool
+  var loiteringLawActive: one Bool
 }
 
 pred wealthyDynamics[p: Person] {
@@ -85,36 +80,14 @@ pred wealthyDynamics[p: Person] {
   }
 }
 
-pred lifeCycle[p: Person] {
-  p.stage = Birth => p.stage' = Childhood
-  p.stage = Childhood => p.stage' = Adulthood
-  p.stage = Adulthood => p.stage' = MiddleAge
-  p.stage = MiddleAge => p.stage' = Death
-  p.stage = Death => p.stage' = Death
-}
-
--- People tend to hide out in bathrooms to escape a loitering charge
-pred bathroomPolicy {
-  all p: Person | wealthyDynamics[p]
-  all s: Society | {
-    (s.publicSympathy = High) => s.bathroomsLocked' = False
-    else (s.loiteringLawActive = True) => s.bathroomsLocked' = True
-    else s.bathroomsLocked' = s.bathroomsLocked
-  }
-}
-
 pred friendship {
   all p: Person | {
-    all f: Person | {
-      (Wealthy in f.labels and f in p.friends) => (p not in f.friends)
-      (f in p.friends and f.askingForAid = True and f.factualState = Homeless and f.stage != Death) => {
+    all f: p.friends | {
+      (Wealthy in f.labels) => (p not in f.friends)
+      (f.askingForAid = True and f.factualState = Homeless) => {
          p.friends' = p.friends - f
       } else {
-         (f.stage' = Death) => {
-            p.friends' = p.friends + f
-         } else {
-            f in p.friends => f in p.friends'
-         }
+         p.friends' = p.friends
       }
     }
   }
@@ -149,7 +122,7 @@ pred housingMarket {
   all p: Person {
     wealthyDynamics[p]
     (p.factualState = Homeless and p.factualState' = Housed) => {
-      Wealthy in p.labels or (p.aid' = AidGranted or p.employed' = True)
+      Wealthy in p.labels or (no p.records and p.employed = True)
     }
     (p.factualState = Homeless) => p.loc != Home
   }
@@ -207,9 +180,7 @@ pred init {
   no Society.mediaStory
   Society.publicSympathy = Low
   Society.loiteringLawActive = True
-  Society.bathroomsLocked = True
   some p: Person | Wealthy in p.labels
-  all p: Person | p.stage = Birth
   all p: Person, h: Person | h.factualState = Homeless => h in p.friends
   all p, f: Person | (f in p.friends and Wealthy in f.labels) => p not in f.friends
 }
@@ -241,7 +212,6 @@ pred step {
     one p.mailingAddress'
     aidOfficeProcess[p]
     mutualAid[p]
-    lifeCycle[p]
   }
   friendship
   addressDynamics
@@ -249,7 +219,6 @@ pred step {
   jobMarket
   applyTrespassingLaw
   mediaAndSympathyDynamics
-  bathroomPolicy
   decisionDynamics  -- drives the orange dashed arrow each tick
 }
 
@@ -264,18 +233,6 @@ pred step {
 --   CrimeIncrease fires for survival crimes (Loitering/Trespassing/Panhandling).
 --   Both fire at the same tick. The same frame. The same employer output.
 -- =============================================================================
-
--- QUESTION: Is it possible to be born homeless and die not homeless?
--- This run asks whether any sequence of steps can take a person from
--- Birth+Homeless to Death+Housed. Step through to see if it's satisfiable.
-run {
-  some p: Person | {
-    p.stage = Birth and p.factualState = Homeless
-    eventually {
-      p.stage = Death and p.factualState = Housed
-    }
-  }
-} for 5
 
 -- ROUTE 1: BORN INTO THE TRAP (original run, now annotated)
 -- Starts homeless, no valid docs, no wealth label.
