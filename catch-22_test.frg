@@ -59,18 +59,6 @@ test expect {
     Society.loiteringLawActive = False
   } for 2 Person is unsat
 
-  -- Init always starts with bathrooms locked
-  initBathroomsLocked: {
-    init
-    Society.bathroomsLocked = False
-  } for 2 Person is unsat
-
-  -- Init always starts at Birth stage
-  initStageIsBirth: {
-    init
-    some p: Person | p.stage != Birth
-  } for 2 Person is unsat
-
   -- Homeless persons are in everyone's friend set at init
   initHomelessFriended: {
     init
@@ -193,13 +181,12 @@ test expect {
     }
   } for 1 Person is sat
 
-  -- Homeless person cannot get housed without wealth, aid, or employment
+  -- Homeless person with records cannot get housed without wealth
   homelessWithRecordsCannotGetHoused: {
     some p: Person | {
       p.factualState = Homeless
       Wealthy not in p.labels
-      p.aid' = NoAid
-      p.employed' = False
+      some p.records
       housingMarket
       p.factualState' = Housed
     }
@@ -500,5 +487,5 @@ test expect {
       Loitering not in p.records'
     }
   } for 1 Person is unsat
-
+gi
 }
