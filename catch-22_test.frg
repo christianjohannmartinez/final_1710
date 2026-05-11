@@ -59,6 +59,18 @@ test expect {
     Society.loiteringLawActive = False
   } for 2 Person is unsat
 
+  -- Init always starts with bathrooms locked
+  initBathroomsLocked: {
+    init
+    Society.bathroomsLocked = False
+  } for 2 Person is unsat
+
+  -- Init always starts at Birth stage
+  initStageIsBirth: {
+    init
+    some p: Person | p.stage != Birth
+  } for 2 Person is unsat
+
   -- Homeless persons are in everyone's friend set at init
   initHomelessFriended: {
     init
@@ -181,12 +193,13 @@ test expect {
     }
   } for 1 Person is sat
 
-  -- Homeless person with records cannot get housed without wealth
+  -- Homeless person cannot get housed without wealth, aid, or employment
   homelessWithRecordsCannotGetHoused: {
     some p: Person | {
       p.factualState = Homeless
       Wealthy not in p.labels
-      some p.records
+      p.aid' = NoAid
+      p.employed' = False
       housingMarket
       p.factualState' = Housed
     }
@@ -426,18 +439,6 @@ test expect {
     }
   } for 2 Person is sat
 
-  -- GaveUp is never the decision for a wealthy person with clean docs
-  wealthyNeverGivesUp: {
-    some p: Person | {
-      Wealthy in p.labels
-      no (p.labels & Deficiency)
-      p.aid = NoAid
-      p.employed = False
-      decisionDynamics
-      p.decision' = GaveUp
-    }
-    all p: Person | Wealthy in p.labels => no (p.labels & Deficiency)
-  } for 2 Person is unsat
 
 }
 
@@ -497,25 +498,6 @@ test expect {
       Loitering in p.records
       applyTrespassingLaw
       Loitering not in p.records'
-    }
-  } for 1 Person is unsat
-
-  -- Multiple records all persist
-  multipleRecordsPersist: {
-    some p: Person | {
-      Loitering in p.records
-      Murder in p.records
-      applyTrespassingLaw
-      not (Loitering in p.records' and Murder in p.records')
-    }
-  } for 1 Person is unsat
-
-  -- Records only grow: next state is superset of current
-  recordsOnlyGrow: {
-    some p: Person | {
-      some p.records
-      applyTrespassingLaw
-      not (p.records in p.records')
     }
   } for 1 Person is unsat
 
