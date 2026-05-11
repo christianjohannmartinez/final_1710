@@ -1,4 +1,5 @@
 #lang forge/temporal
+option run_sterling "layout.cnd"
 
 option max_tracelength 8
 option min_tracelength 4
