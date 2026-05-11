@@ -340,4 +340,4 @@ run {
   init
   all p: Person | Wealthy in p.labels
   always step
-} for 3 Person, 6 Intg
+} for 3 Person, 6 Int
