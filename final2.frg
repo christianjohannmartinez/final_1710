@@ -60,38 +60,36 @@ pred wealthyDynamics[p: Person] {
   }
 }
 
-pred friendshipDynamics {
+pred friendship {
   all p: Person | {
-    p.friends' = {f: p.friends | not (f.askingForAid = True and f.factualState = Homeless)}
-  }
-  all p1, p2: Person | {
-    (Wealthy in p2.labels and p2 in p1.friends') => p1 not in p2.friends'
-  }
-}
-
-pred aidDynamics {
-  all p: Person | {
-    (no (p.labels & Deficiency)) => p.aid' = AidGranted
-    else p.aid' = NoAid
-
-    (some f: Person | p in f.friends and Wealthy in f.labels) => {
-       p.mailingAddress' != NoAddress
-       p.labels' = (p.labels - Deficiency) + ValidDocumentation
-    } else {
-       (p.factualState' = Homeless and Wealthy not in p.labels') => {
-         p.mailingAddress' = NoAddress
-         UnverifiedAddress in p.labels'
-       }
-       p.labels' = p.labels 
+    all f: p.friends | {
+      (Wealthy in f.labels) => (p not in f.friends)
+      (f.askingForAid = True and f.factualState = Homeless) => {
+         p.friends' = p.friends - f
+      } else {
+         p.friends' = p.friends
+      }
     }
   }
 }
 
-pred behavior {
-  all p: Person | {
-    p.askingForAid = True => p.factualState = Homeless
-    (p.aid = AidGranted) => p.factualState' = Housed
-    else p.factualState' = p.factualState
+pred mutualAid[p: Person] {
+  (some f: p.friends | Wealthy in f.labels) => {
+     p.labels' = p.labels - Deficiency
+     some f: p.friends | Wealthy in f.labels and p.mailingAddress' = f.mailingAddress
+  } else {
+     p.labels' = p.labels
+     p.mailingAddress' = p.mailingAddress
+  }
+}
+
+pred addressDynamics {
+  all p: Person {
+    wealthyDynamics[p]
+    (p.factualState = Homeless and Wealthy not in p.labels) => p.mailingAddress = NoAddress
+    (p.factualState = Housed or Wealthy in p.labels) => p.mailingAddress != NoAddress
+    (p.mailingAddress = NoAddress) => UnverifiedAddress in p.labels
+    else UnverifiedAddress not in p.labels
   }
 }
 
@@ -111,6 +109,11 @@ pred jobMarket {
     (p.experience = None and p.experience' = Some) => p.employed = True
     p.mailingAddress != NoAddress
   }
+}
+
+pred aidOfficeProcess[p: Person] {
+  (no (p.labels & Deficiency)) => p.aid' = AidGranted
+  else p.aid' = NoAid
 }
 
 pred applyTrespassingLaw {
@@ -146,27 +149,29 @@ pred init {
   Society.publicSympathy = Low
   Society.loiteringLawActive = True
   some p: Person | Wealthy in p.labels
-  some p: Person | p.factualState = Homeless
-  all p1, p2: Person | p2.factualState = Homeless => p2 in p1.friends
-  all p1, p2: Person | (Wealthy in p2.labels and p2 in p1.friends) => p1 not in p2.friends
+  all p: Person, h: Person | h.factualState = Homeless => h in p.friends
+  all p, f: Person | (f in p.friends and Wealthy in f.labels) => p not in f.friends
 }
 
 pred step {
   all p: Person {
     one p.loc'
+    one p.factualState'
     one p.experience'
     one p.employed'
-    one p.askingForAid' 
+    one p.mailingAddress'
+    aidOfficeProcess[p]
+    mutualAid[p]
   }
-  friendshipDynamics
-  aidDynamics
-  behavior
+  friendship
+  addressDynamics
   housingMarket
   jobMarket
   applyTrespassingLaw
   mediaAndSympathyDynamics
 }
 
-run { init always step } for 3 Person, 5 steps
+run { init always step }
+
 
 
