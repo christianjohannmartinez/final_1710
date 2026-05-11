@@ -2,45 +2,61 @@
 
 ## What it is
 
-A person wants a sandwich. Three avenues can give them one: a job, asking
-on the street, and government aid. Each avenue has a catch. The model is
-about whether the catches combine into a trap you can't get out of.
+A comedic-critical art piece in Temporal Forge. For example, a person without a permanent
+address tries to get help. Several avenues exist. None of them work — not
+because the model says so explicitly, but because it has built a self-reinforcing
+system that closes every door while appearing, at each individual step, to be
+procedurally reasonable.
+
+The main message here is not to label the system cruel, rather to show the system to be
+formally correct but ultimately structurally impossible to navigate if
+you start from the wrong place.
 
 ## Three buckets
 
-- Core: people, labels, sandwich possession, the three avenues, the catch-22 in each one.
-- Related but not modeled: labels expiring over time, multiple people interacting, scarcity of sandwiches.
-- Out of scope: real welfare policy, money, geography.
+- Core: people, status, document labels, location, crime records, media stories,
+  public sympathy, the trespassing law, the loop between all of them.
+- Related but not modeled: multiple interacting people, labels expiring over time,
+  a sandwich or tangible goal object, money.
+- Out of scope: real welfare policy, geography, any explicit statement that the
+  system is discriminatory.
 
 ## Goals
 
-- Foundation: a trace runs, a person moves through avenues, labels and possession change the way we expect.
-- Target: show via `unsat` that some starting configurations can ever reach a sandwich.
-- Reach: compare which single rule change (e.g., drop the experience requirement for a job) unblocks the trap.
+- Foundation: the loop runs, a person accumulates trespassing records, media
+  responds, sympathy does not recover, the system is stable.
+- Target: show via `unsat` that a person starting from Homeless / UnverifiedAddress
+  cannot reach a state where aid is granted, regardless of path taken.
+- Reach: an interactive interface where the viewer attempts to find a way through
+  the system themselves, directing the solver down one avenue or another, and
+  watching each one close.
 
-## Status at Design Check 1
+## Status following Design Check 2 redirection
 
-- sigs, init, three avenue predicates, step, traces — all written
-- one run block produces instances
-- tests file started, one sanity check passing
-- haven't proven the trap yet (open TODO in tests file)
+- sigs, init, trespassing law, media transitions, sympathy dynamics, and trace
+  structure are all written
+- the self-reinforcing loop is structurally present
+- deniedAid is in place with the paperwork framing
+- the crime list (Murder, ArmedRobbery, Trespassing) is defined; only Trespassing
+  is ever applied
+- misleading comments have not been added yet, pending
+- custom visualizer is in the works and being perfected
 
 ## Files
 
-- `final.frg` — the model
-- `final.tests.frg` — tests
-- `README.md` — this
+- `final.frg` — the original, now outdated, model
+- `final2.frg` — the model
+- `final_tests.frg` — tests (currently references older sandwich model sigs)
+- `README.md` — this file
 
-From the terminal:
+Running from the terminal:
 
-    racket final.frg
-    racket final.tests.frg
+    racket final2.frg
+    racket final_tests.frg
 
 ## Open questions for the mentor
 
-1. Is `lone Sandwich` the right call, or should sandwiches be a shared
-   pool that runs out?
-2. `step` picks one person and one avenue at random. Is that the right
-   abstraction, or should each tick be a fixed avenue?
-3. What's the cleanest way to write the "trap is provable" check?
+1. Should `Society` be the only locus of some sympathy/law state, or should individual Person records track something like a publicPerception field separately?
+2. Is `Park` the right single safe location, or do you think should there be multiple designated zones that might change over time like the real world? Or too much?
 
+-- maybe one more here, any ideas?
