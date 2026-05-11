@@ -1,0 +1,186 @@
+# =============================================================================
+# layout.cnd — THE DOCUMENTATION TRAP (final2.frg)
+# =============================================================================
+#
+# HOW TO LOAD: Sterling → Layout tab → Load Layout → paste this file.
+# HOW TO READ: Time tab arrows (right panel) to step tick by tick.
+#
+# THE ARROWS:
+#   Person → Decision atom  (orange dashed, thick)
+#     = Person.decision — what avenue they tried this tick
+#     Poor routes:   TryJob → TryAid → GaveUp. Then it locks. Never moves again.
+#     Wealthy route: TryJob every tick. No deviation.
+#
+#   Person → Crime atoms    (red solid)
+#     = Person.records — crimes accumulated from surviving without documents
+#     Orange atoms: survival crimes (Loitering, Trespassing, Panhandling)
+#     Dark red atoms: violent crimes (Murder, Manslaughter, ArmedRobbery)
+#     THE MISREPORTING: CriminalElement fires for BOTH colors identically.
+#     Watch them pile up below Person each tick.
+#
+# THE MEDIA ATOMS (shown via Society.mediaStory):
+#   CriminalElement (dark red): fires when ANY record exists — survival OR violent.
+#     This is the pooling frame. Loitering and Murder produce the same atom.
+#     An employer background check produces the same binary output for both.
+#   CrimeIncrease (orange):     fires when survival crimes are in records.
+#   ParkCrowding (amber):       fires when a homeless person is in the park.
+#   Watch CriminalElement and CrimeIncrease fire at the SAME tick.
+#   Same story. Different source. Undifferentiated output.
+#
+# THE SPATIAL HIERARCHY:
+#   Society floats ABOVE Person — power is spatial, the institution is overhead.
+#   Decision atoms cluster to the RIGHT of Person.
+#   Crime atoms cluster BELOW Person — the burden accumulates at their feet.
+#
+# WHAT TO WATCH PER ROUTE:
+#   Route 1 (Born Into Trap):    decision locks to GaveUp by tick 2-3.
+#                                 Record arrows pile up. CriminalElement never stops.
+#   Route 2 (Working Poor):      decision starts TryJob, slides to GaveUp.
+#                                 CriminalElement fires as soon as first record appears.
+#   Route 3 (Already Charged):   CriminalElement fires at tick 0 (record pre-exists).
+#                                 Decision = TryJob at start but collapses faster.
+#   Route 4 (Old Money):         decision stays TryJob. No red record arrows. Ever.
+#                                 CriminalElement never fires. Same Society. Same laws.
+# =============================================================================
+
+constraints:
+  # Society floats above Person
+  - orientation:
+      selector: "Society -> Person"
+      directions: [above]
+
+  # Decision atoms are to the right of Person
+  - orientation:
+      selector: "Person -> TryJob"
+      directions: [right]
+
+  - orientation:
+      selector: "Person -> TryAid"
+      directions: [right]
+
+  - orientation:
+      selector: "Person -> GaveUp"
+      directions: [right]
+
+  # Crime atoms cluster below Person
+  - orientation:
+      selector: "Person -> Loitering"
+      directions: [below]
+
+  - orientation:
+      selector: "Person -> Trespassing"
+      directions: [below]
+
+  - orientation:
+      selector: "Person -> Panhandling"
+      directions: [below]
+
+  - orientation:
+      selector: "Person -> Murder"
+      directions: [below]
+
+  - orientation:
+      selector: "Person -> Manslaughter"
+      directions: [below]
+
+  - orientation:
+      selector: "Person -> ArmedRobbery"
+      directions: [below]
+
+directives:
+
+  # ── PERSON: key fields as inline text ──────────────────────────────────────
+  - atomColor: {selector: Person, value: "#E8A838"}
+
+  - attribute: {field: factualState,  selector: Person}
+  - attribute: {field: employed,      selector: Person}
+  - attribute: {field: aid,           selector: Person}
+  - attribute: {field: labels,        selector: Person}
+
+  # ── SOCIETY: sympathy + policy as inline text ───────────────────────────────
+  - atomColor: {selector: Society, value: "#1e293b"}
+
+  - attribute: {field: publicSympathy,     selector: Society}
+  - attribute: {field: mediaStory,         selector: Society}
+  - attribute: {field: loiteringLawActive, selector: Society}
+
+  # ── DECISION ATOMS: the avenue tried each tick ─────────────────────────────
+  - atomColor: {selector: TryJob, value: "#16a34a"}
+  - atomColor: {selector: TryAid, value: "#7e22ce"}
+  - atomColor: {selector: GaveUp, value: "#dc2626"}
+
+  # decision edge: orange dashed — the main narrative arrow
+  - edgeColor:
+      field: decision
+      value: "#f97316"
+      style: dashed
+      weight: 3
+      showLabel: true
+
+  # ── CRIME ATOMS ─────────────────────────────────────────────────────────────
+  # Survival crimes — warm orange shades
+  # Violent crimes  — dark red shades
+  # CriminalElement fires for ALL of them. Same color arrow. Same employer output.
+  - atomColor: {selector: Loitering,    value: "#f97316"}  # bright orange (survival)
+  - atomColor: {selector: Trespassing,  value: "#fb923c"}  # light orange  (survival)
+  - atomColor: {selector: Panhandling,  value: "#d97706"}  # dark amber    (survival)
+  - atomColor: {selector: Murder,       value: "#450a0a"}  # darkest red   (violent)
+  - atomColor: {selector: Manslaughter, value: "#7f1d1d"}  # dark red      (violent)
+  - atomColor: {selector: ArmedRobbery, value: "#991b1b"}  # medium red    (violent)
+
+  # records edges: solid red arrows from Person to each accumulated crime
+  - edgeColor:
+      field: records
+      value: "#dc2626"
+      style: solid
+      weight: 2
+      showLabel: true
+
+  # ── MEDIA STORY ATOMS ───────────────────────────────────────────────────────
+  # These appear/disappear each tick. Watch CriminalElement and CrimeIncrease
+  # fire simultaneously — same tick, different name, same source.
+  - atomColor: {selector: CriminalElement, value: "#b91c1c"}  # dark red — fires for ALL records
+  - atomColor: {selector: CrimeIncrease,   value: "#f97316"}  # orange   — fires for survival crimes
+  - atomColor: {selector: ParkCrowding,    value: "#b45309"}  # amber    — fires for park presence
+
+  # ── HIDE atoms shown as inline text or not part of the visual story ─────────
+
+  # Status values (shown inline on Person via factualState)
+  - hideAtom: {selector: Homeless}
+  - hideAtom: {selector: Housed}
+
+  # Bool values (shown inline)
+  - hideAtom: {selector: True}
+  - hideAtom: {selector: False}
+
+  # Sympathy values (shown inline on Society)
+  - hideAtom: {selector: High}
+  - hideAtom: {selector: Low}
+
+  # Aid status (shown inline on Person)
+  - hideAtom: {selector: AidGranted}
+  - hideAtom: {selector: NoAid}
+
+  # Experience values (not part of the narrative visualization)
+  - hideAtom: {selector: None}
+  - hideAtom: {selector: Some}
+
+  # Document labels (shown inline via Person.labels)
+  - hideAtom: {selector: ValidDocumentation}
+  - hideAtom: {selector: Wealthy}
+  - hideAtom: {selector: UnverifiedAddress}
+  - hideAtom: {selector: UnverifiedSSN}
+  - hideAtom: {selector: MissingDocumentation}
+
+  # Address values (shown inline via Person.mailingAddress)
+  - hideAtom: {selector: NoAddress}
+
+  # Locations (not shown as atoms; person moves but location is implicit)
+  - hideAtom: {selector: Park}
+  - hideAtom: {selector: Outside}
+  - hideAtom: {selector: Home}
+
+  - flag: hideDisconnectedBuiltIns
+
+temporal:
+  policy: manual

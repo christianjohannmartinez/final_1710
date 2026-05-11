@@ -1,0 +1,15 @@
+Route 1 — Born Into the Trap.
+
+A homeless person with no records, no wealth label, no documents. Each tick, applyTrespassingLaw adds survival crimes to their record — Loitering if they're outside, Trespassing if they're in the park, Panhandling once they have deficiency labels. As soon as any record exists, CriminalElement fires in mediaStory, sympathy stays Low, the loitering law stays Active, and more crimes are generated next tick. The decision arrow slides from TryJob toward GaveUp as every avenue closes, then locks there permanently. Nothing changes after that — the loop just repeats.
+
+Route 2 — Working Poor.
+
+A housed, employed person with documentation deficiencies but no record. Tick 0 looks stable. By tick 1, Loitering fires (they're outside, not wealthy, law is active) and CriminalElement appears in mediaStory. The record blocks continued employment through jobMarket. Without income, housing becomes untenable, and by tick 2–3 they are homeless and following the same trajectory as Route 1. The lesson is that employment and housing at tick 0 are not protection — they evaporate the moment a record exists.
+
+Route 3 — Already Charged.
+
+A homeless person who already has a Loitering record before the trace begins. CriminalElement fires at tick 0 because the record exists from the start — there is no tick where this person is seen as record-free. The decision arrow starts at TryJob but collapses faster than Route 1 because the media loop is already running. This route demonstrates the pooling directly: one survival infraction, present before the model even starts stepping, produces the same CriminalElement output as Murder would.
+
+Route 4 — Old Money.
+
+A person with the Wealthy label. Same Society, same loiteringLawActive = True, same laws. But wealthyDynamics shields them: records never grow, deficiencies are cleared, the mailing address stays valid. CriminalElement never fires. The decision arrow stays TryJob every tick without deviation. Sympathy can rise to High. The only difference from Route 1 is the label they were born with.
